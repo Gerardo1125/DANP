@@ -14,10 +14,13 @@ public class MainActivity extends AppCompatActivity {
 
     SensorManager sensorManager;
     Sensor sensorAce, sensorMag, sensorGrav;
-    SensorEventListener sensorEventListener;
+    SensorEventListener sensorEventListenerA, sensorEventListenerM;
     int change = 0;
     TextView aX, aY, aZ, mX, mY, mZ;
     TextView acelerometro, magnetrometro;
+    float auxX = 0;
+    float auxY = 0;
+    float auxZ = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -38,17 +41,16 @@ public class MainActivity extends AppCompatActivity {
         }
         if (sensorMag== null)
             finish();
+        if (sensorGrav == null){
+            finish();
+        }
 
-        sensorEventListener = new SensorEventListener() {
+        sensorEventListenerA = new SensorEventListener() {
             @Override
             public void onSensorChanged(SensorEvent event) {
-
-                synchronized (this) {
-                    switch (event.sensor.getType()) {
-
                         // si se desea usar el accelerometer comentar el código del caso de Gravedad
                         // si se desea usar la gravedad comentar el código del caso acelerometro
-                        /*case Sensor.TYPE_ACCELEROMETER:
+                        /*
                             float x = (Math.round(event.values[0]));
                             float y = (Math.round(event.values[1]));
                             float z = (Math.round(event.values[2]));
@@ -78,16 +80,6 @@ public class MainActivity extends AppCompatActivity {
 
                             */
 
-
-                        case Sensor.TYPE_MAGNETIC_FIELD:
-                            float a = Math.round(event.values[0]);
-                            float b = Math.round(event.values[1]);
-                            float c = Math.round(event.values[2]);
-                            mX.setText("X: " + a);
-                            mY.setText("Y: " + b);
-                            mZ.setText("Z: " + c);
-
-                        case Sensor.TYPE_GRAVITY:
                             acelerometro.setText("Gravedad");
                             float x = (Math.round(event.values[0]));
                             float y = (Math.round(event.values[1]));
@@ -95,6 +87,14 @@ public class MainActivity extends AppCompatActivity {
                             aX.setText("X: " + x);
                             aY.setText("Y: " + y);
                             aZ.setText("Z: " + z);
+
+                            if (change == 0){
+                                float auxX = x;
+                                float auxY = y;
+                                float auxZ = z;
+                                System.out.println("/**************************" + x+ " " + y+" "+z);
+                                change++;
+                            }
                             acelerometro.setTextColor(Color.WHITE);
                             magnetrometro.setTextColor(Color.WHITE);
                             aX.setTextColor(Color.WHITE);
@@ -104,33 +104,48 @@ public class MainActivity extends AppCompatActivity {
                             mZ.setTextColor(Color.WHITE);
                             mY.setTextColor(Color.WHITE);
 
-                            if(x > 23){
+                            if(x < 2 && x >-2 && y > 5){
                                 getWindow().getDecorView().setBackgroundColor(Color.GRAY);
-                            }else if(y > 23){
+                            }else if(y > -1 && y < 1 && x < -5){
                                 getWindow().getDecorView().setBackgroundColor(Color.BLUE);
-                            }else if(y < -23){
+                            }else if(y > -1 && y < 1 && x > 5){
                                 getWindow().getDecorView().setBackgroundColor(Color.RED);
-                            } else if(x < -23){
+                            } else if(x < 2 && x >-2 && y < -5){
                                 getWindow().getDecorView().setBackgroundColor(Color.MAGENTA);
                             }
-
-                    }
-                }
             }
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
+            }
+        };
+        sensorEventListenerM = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                float a = Math.round(event.values[0]);
+                float b = Math.round(event.values[1]);
+                float c = Math.round(event.values[2]);
+                mX.setText("X: " + a);
+                mY.setText("Y: " + b);
+                mZ.setText("Z: " + c);
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
             }
         };
         start();
     }
 
     private void start(){
-        sensorManager.registerListener(sensorEventListener,sensorAce,SensorManager.SENSOR_DELAY_FASTEST);
-        sensorManager.registerListener(sensorEventListener,sensorMag,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(sensorEventListenerA,sensorAce,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(sensorEventListenerA,sensorMag,SensorManager.SENSOR_DELAY_FASTEST);
+        sensorManager.registerListener(sensorEventListenerM,sensorGrav,SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private void stop(){
-        sensorManager.unregisterListener(sensorEventListener);
+        sensorManager.unregisterListener(sensorEventListenerA);
+        sensorManager.unregisterListener(sensorEventListenerM);
     }
 
     @Override
