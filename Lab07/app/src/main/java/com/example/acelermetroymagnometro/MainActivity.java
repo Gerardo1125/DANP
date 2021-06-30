@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
                             } else if(x < 2 && x >-2 && y < -5){
                                 getWindow().getDecorView().setBackgroundColor(Color.MAGENTA);
                             }
+
+
             }
             @Override
             public void onAccuracyChanged(Sensor sensor, int accuracy) {
